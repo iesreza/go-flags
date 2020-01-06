@@ -311,9 +311,11 @@ func (p *Parser) WriteHelp(writer io.Writer) {
 			} else if allcmd.hasHelpOptions() {
 				usage = fmt.Sprintf("[%s-OPTIONS]", allcmd.Name)
 			}
-
+			if p.TopCommand != "" {
+				p.TopCommand += " "
+			}
 			if len(usage) != 0 {
-				fmt.Fprintf(wr, " %s %s", allcmd.Name, usage)
+				fmt.Fprintf(wr, "%s%s", p.TopCommand, usage)
 			} else {
 				fmt.Fprintf(wr, " %s", allcmd.Name)
 			}

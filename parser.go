@@ -19,7 +19,7 @@ import (
 type Parser struct {
 	// Embedded, see Command for more information
 	*Command
-
+	TopCommand string
 	// A usage string to be displayed in the help message.
 	Usage string
 
@@ -142,8 +142,8 @@ func Parse(data interface{}) ([]string, error) {
 // the list of command line arguments to parse. If you just want to parse the
 // default program command line arguments (i.e. os.Args), then use flags.Parse
 // instead. For more control, use flags.NewParser.
-func ParseArgs(data interface{}, args []string) ([]string, error) {
-	return NewParser(data, Default).ParseArgs(args)
+func ParseArgs(topCommand string, data interface{}, args []string) ([]string, error) {
+	return NewParser(data, Default).ParseArgs(topCommand, args)
 }
 
 // NewParser creates a new parser. It uses os.Args[0] as the application
@@ -187,7 +187,7 @@ func NewNamedParser(appname string, options Options) *Parser {
 // Parse parses the command line arguments from os.Args using Parser.ParseArgs.
 // For more detailed information see ParseArgs.
 func (p *Parser) Parse() ([]string, error) {
-	return p.ParseArgs(os.Args[1:])
+	return p.ParseArgs("", os.Args[1:])
 }
 
 // ParseArgs parses the command line arguments according to the option groups that
@@ -201,7 +201,7 @@ func (p *Parser) Parse() ([]string, error) {
 // automatically printed if the PrintErrors option is enabled.
 // Furthermore, the special error type ErrHelp is returned.
 // It is up to the caller to exit the program if so desired.
-func (p *Parser) ParseArgs(args []string) ([]string, error) {
+func (p *Parser) ParseArgs(topCommand string, args []string) ([]string, error) {
 	if p.internalError != nil {
 		return nil, p.internalError
 	}
@@ -211,7 +211,7 @@ func (p *Parser) ParseArgs(args []string) ([]string, error) {
 		option.isSetDefault = false
 		option.updateDefaultLiteral()
 	})
-
+	p.TopCommand = topCommand
 	// Add built-in help group to all commands if necessary
 	if (p.Options & HelpFlag) != None {
 		p.addHelpGroups(p.showBuiltinHelp)
